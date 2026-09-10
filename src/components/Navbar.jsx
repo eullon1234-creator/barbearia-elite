@@ -20,8 +20,8 @@ export default function Navbar({ onOpenBooking, clientTab = 'home', onSelectTab,
 
   const open = isOpenNow();
 
-  // Divide o nome da barbearia se houver duas palavras (ex: BARBEARIA ANDRADE)
-  const nameParts = (profile.name || 'Barbearia Andrade').split(' ');
+  // Divide o nome da barbearia se houver duas palavras (ex: BARBEARIA ELITE)
+  const nameParts = (profile.name || 'Barbearia Elite').split(' ');
   const firstName = nameParts[0] || 'BARBEARIA';
   const restName = nameParts.slice(1).join(' ') || '';
 
@@ -72,7 +72,7 @@ export default function Navbar({ onOpenBooking, clientTab = 'home', onSelectTab,
               </span>
               <span className="text-neutral-500">•</span>
               <span className="text-neutral-400 text-[10px] truncate max-w-[120px]">
-                {profile.address ? profile.address.split(',')[0] : 'Tuntum - MA'}
+                {profile.address ? profile.address.split(',')[0] : 'Av. Petrônio Portela'}
               </span>
             </div>
           </div>
@@ -80,20 +80,6 @@ export default function Navbar({ onOpenBooking, clientTab = 'home', onSelectTab,
 
         {/* Botões de Ação do Topo */}
         <div className="flex items-center gap-1.5">
-          {onSelectTab && (
-            <button
-              onClick={() => onSelectTab(clientTab === 'home' ? 'feed' : 'home')}
-              className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                clientTab === 'feed'
-                  ? 'bg-dark-800 text-white border-dark-700 hover:bg-dark-750'
-                  : 'bg-gradient-to-r from-rose-500/15 via-pink-500/15 to-purple-500/15 border-pink-500/30 text-pink-400 hover:text-pink-300'
-              }`}
-              title={clientTab === 'home' ? 'Ver Feed do Instagram' : 'Voltar para o Início'}
-            >
-              <InstagramIcon className="w-3.5 h-3.5" />
-              <span>{clientTab === 'feed' ? 'Início' : 'Feed'}</span>
-            </button>
-          )}
 
           {/* Botão de Conta do Cliente (Entrar ou Perfil VIP) */}
           {currentClient ? (

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Home, Calendar, MessageCircle, User } from 'lucide-react';
 import { useBarber } from '../context/BarberContext';
-import { InstagramIcon } from './Icons';
 import { getWhatsAppUrl } from '../utils/phoneUtils';
 
 export default function BottomBar({ onOpenBooking, clientTab = 'home', onSelectTab, onOpenClientAuth, onOpenClientProfile }) {
@@ -9,7 +8,7 @@ export default function BottomBar({ onOpenBooking, clientTab = 'home', onSelectT
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 p-2 bg-dark-950/95 backdrop-blur-xl border-t border-dark-800 shadow-[0_-10px_25px_rgba(0,0,0,0.8)]">
-      <div className="max-w-md mx-auto grid grid-cols-5 gap-1 items-center">
+      <div className="max-w-md mx-auto grid grid-cols-4 gap-1 items-center">
         
         {/* Aba Início */}
         <button
@@ -22,22 +21,6 @@ export default function BottomBar({ onOpenBooking, clientTab = 'home', onSelectT
         >
           <Home className={`w-4 h-4 ${clientTab === 'home' ? 'theme-text-accent' : ''}`} />
           <span className="text-[9px] tracking-tight">Início</span>
-        </button>
-
-        {/* Aba Feed Instagram */}
-        <button
-          onClick={() => onSelectTab && onSelectTab('feed')}
-          className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer relative ${
-            clientTab === 'feed'
-              ? 'bg-gradient-to-tr from-rose-500/20 via-pink-500/20 to-purple-500/20 border border-pink-500/40 text-white font-bold shadow-md shadow-pink-500/20'
-              : 'text-neutral-400 hover:text-white hover:bg-dark-900'
-          }`}
-        >
-          <div className="relative">
-            <InstagramIcon className={`w-4 h-4 ${clientTab === 'feed' ? 'text-pink-400' : ''}`} />
-            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-          </div>
-          <span className="text-[9px] tracking-tight">Feed</span>
         </button>
 
         {/* Aba Minha Conta / Perfil VIP */}
