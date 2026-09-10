@@ -134,7 +134,7 @@ const INITIAL_ALL_BARBERSHOPS = [
     price: 10.00,
     barberPin: '0192',
     expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    url: 'http://localhost:5173/',
+    url: 'https://eullon1234-creator.github.io/barbearia-elite/',
     notes: 'Cliente novo. 1º mês por R$ 10,00. Próximos meses R$ 35,00/mês.',
   },
   {
