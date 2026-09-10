@@ -55,12 +55,14 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
   const [isUploadingCoverImage, setIsUploadingCoverImage] = useState(false);
   const [isUploadingLogoImage, setIsUploadingLogoImage] = useState(false);
   const [isUploadingGalleryImage, setIsUploadingGalleryImage] = useState(false);
+  const [isUploadingBarberImage, setIsUploadingBarberImage] = useState(false);
 
   const serviceFileInputRef = useRef(null);
   const profileFileInputRef = useRef(null);
   const coverFileInputRef = useRef(null);
   const logoFileInputRef = useRef(null);
   const galleryFileInputRef = useRef(null);
+  const barberFileInputRef = useRef(null);
   const jsonFileInputRef = useRef(null);
 
   // Estado do Modal de Recorte e Ajuste de Fotos
@@ -130,7 +132,12 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
             showToast('Enviando foto do corte para o Cloudinary...');
             const imageUrl = await uploadImageToCloudinary(croppedFile);
             setServiceForm(prev => ({ ...prev, image: imageUrl }));
-            showToast('Foto do corte salva com sucesso!');
+            if (editingService?.id) {
+              updateService(editingService.id, { image: imageUrl });
+              showToast('Foto do corte salva e atualizada com sucesso!');
+            } else {
+              showToast('Foto do corte carregada!');
+            }
             setCropperModal(prev => ({ ...prev, isOpen: false }));
           } catch (err) {
             alert('Erro ao enviar imagem: ' + (err.message || 'Erro no upload'));
@@ -256,6 +263,41 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
             alert('Erro ao enviar imagem: ' + (err.message || 'Erro no upload'));
           } finally {
             setIsUploadingGalleryImage(false);
+          }
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleBarberPhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setCropperModal({
+        isOpen: true,
+        imageSrc: ev.target.result,
+        title: `Recortar Foto de ${barberForm.name || 'Barbeiro'}`,
+        cropType: 'avatar',
+        targetCallback: async (croppedFile) => {
+          try {
+            setIsUploadingBarberImage(true);
+            showToast('Enviando foto do profissional para o Cloudinary...');
+            const imageUrl = await uploadImageToCloudinary(croppedFile);
+            setBarberForm(prev => ({ ...prev, photo: imageUrl }));
+            if (editingBarber?.id) {
+              updateBarber(editingBarber.id, { photo: imageUrl });
+              showToast('Foto do barbeiro atualizada e salva!');
+            } else {
+              showToast('Foto do barbeiro carregada com sucesso!');
+            }
+            setCropperModal(prev => ({ ...prev, isOpen: false }));
+          } catch (err) {
+            alert('Erro ao enviar imagem: ' + (err.message || 'Erro no upload'));
+          } finally {
+            setIsUploadingBarberImage(false);
           }
         }
       });
@@ -526,6 +568,7 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
       name: '',
       role: 'Barbeiro Profissional',
       icon: '✂️',
+      photo: '',
       phone: '',
       specialties: 'Degradê, Barba na Toalha Quente',
     });
@@ -538,6 +581,7 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
       name: b.name || '',
       role: b.role || '',
       icon: b.icon || '✂️',
+      photo: b.photo || '',
       phone: b.phone || '',
       specialties: Array.isArray(b.specialties) ? b.specialties.join(', ') : (b.specialties || ''),
     });
@@ -559,6 +603,7 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
         name: barberForm.name.trim(),
         role: barberForm.role.trim() || 'Barbeiro Profissional',
         icon: barberForm.icon || '✂️',
+        photo: barberForm.photo || '',
         phone: barberForm.phone.trim(),
         specialties: specs,
       });
@@ -568,6 +613,7 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
         name: barberForm.name.trim(),
         role: barberForm.role.trim() || 'Barbeiro Profissional',
         icon: barberForm.icon || '✂️',
+        photo: barberForm.photo || '',
         phone: barberForm.phone.trim(),
         specialties: specs,
       });
@@ -2744,6 +2790,47 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
                 />
               </div>
 
+              {/* Foto Real do Barbeiro (Cloudinary) */}
+              <div className="p-3 rounded-2xl bg-dark-850 border border-dark-750 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full border-2 border-gold-500/50 bg-dark-950 overflow-hidden flex items-center justify-center shrink-0">
+                  {barberForm.photo ? (
+                    <img src={barberForm.photo} alt={barberForm.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xl">{barberForm.icon || '✂️'}</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <span className="text-[10px] uppercase font-bold text-neutral-400 block mb-1">
+                    Foto do Profissional (Cloudinary):
+                  </span>
+                  <input
+                    ref={barberFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBarberPhotoUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    disabled={isUploadingBarberImage}
+                    onClick={() => barberFileInputRef.current?.click()}
+                    className="px-2.5 py-1.5 rounded-lg bg-dark-800 hover:bg-dark-750 text-white border border-dark-700 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {isUploadingBarberImage ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>Enviando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Camera className="w-3 h-3" />
+                        <span>{barberForm.photo ? 'Trocar Foto' : 'Escolher Foto'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-[10px] uppercase font-bold text-neutral-300 mb-1">
                   Cargo / Especialidade Principal:
@@ -2845,7 +2932,7 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
             await cropperModal.targetCallback(croppedFile);
           }
         }}
-        isUploading={isUploadingServiceImage || isUploadingProfileImage || isUploadingCoverImage || isUploadingLogoImage || isUploadingGalleryImage}
+        isUploading={isUploadingServiceImage || isUploadingProfileImage || isUploadingCoverImage || isUploadingLogoImage || isUploadingGalleryImage || isUploadingBarberImage}
         themeColor={theme.primary}
       />
 

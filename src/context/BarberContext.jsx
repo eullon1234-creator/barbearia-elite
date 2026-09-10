@@ -404,13 +404,18 @@ export function BarberProvider({ children }) {
   const saveToFirestore = async (docId, rawData) => {
     if (!firestoreDb) return;
     try {
+      const nowIso = new Date().toISOString();
       const safeData = JSON.parse(JSON.stringify(rawData, (k, v) => (v === undefined ? null : v)));
       await setDoc(doc(firestoreDb, 'barbershop', docId), {
         data: safeData,
-        updatedAt: new Date().toISOString()
+        updatedAt: nowIso
       }, { merge: true });
+      setCloudSyncStatus('conectado');
     } catch (err) {
-      if (err?.code !== 'resource-exhausted') {
+      if (err?.code === 'resource-exhausted' || err?.message?.includes('Quota exceeded')) {
+        console.warn(`[Firestore] Cota diária excedida ao salvar ${docId}. Mantendo salvo localmente.`);
+        setCloudSyncStatus('cota_esgotada');
+      } else {
         console.warn(`[Firestore] Erro ao salvar ${docId}:`, err.message);
       }
     }
@@ -429,9 +434,34 @@ export function BarberProvider({ children }) {
       const unsubProfile = onSnapshot(doc(firestoreDb, 'barbershop', 'profile'), (snap) => {
         if (!isMounted) return;
         if (snap.exists() && snap.data()?.data) {
-          const cloudProfile = snap.data().data;
-          setProfile(prev => ({ ...prev, ...cloudProfile }));
-          localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(cloudProfile));
+          const docData = snap.data();
+          const cloudProfile = docData.data;
+          const cloudTime = docData.updatedAt ? new Date(docData.updatedAt).getTime() : 0;
+
+          setProfile(prev => {
+            const localTime = prev?._localUpdatedAt || 0;
+            // Se as alterações locais forem mais recentes que o dado remoto, NÃO SOBRESCREVE!
+            if (localTime > cloudTime) {
+              return prev;
+            }
+
+            const merged = { ...prev, ...cloudProfile };
+            // Proteção de fotos reais Cloudinary: se o usuário já colocou imagem personalizada, nunca reverte para imagem genérica unsplash
+            if (prev.coverImage && prev.coverImage.includes('cloudinary.com') && !cloudProfile.coverImage?.includes('cloudinary.com')) {
+              merged.coverImage = prev.coverImage;
+            }
+            if (prev.logoImage && prev.logoImage.includes('cloudinary.com') && !cloudProfile.logoImage?.includes('cloudinary.com')) {
+              merged.logoImage = prev.logoImage;
+            }
+            if (prev.image && prev.image.includes('cloudinary.com') && !cloudProfile.image?.includes('cloudinary.com')) {
+              merged.image = prev.image;
+            }
+
+            try {
+              localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(merged));
+            } catch (e) {}
+            return merged;
+          });
         }
       }, (err) => {
         if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Perfil:', err.message);
@@ -446,9 +476,27 @@ export function BarberProvider({ children }) {
       const unsubServices = onSnapshot(doc(firestoreDb, 'barbershop', 'services'), (snap) => {
         if (!isMounted) return;
         if (snap.exists() && Array.isArray(snap.data()?.data) && snap.data().data.length > 0) {
-          const cloudServices = snap.data().data;
-          setServices(cloudServices);
-          localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(cloudServices));
+          const docData = snap.data();
+          const cloudServices = docData.data;
+          const cloudTime = docData.updatedAt ? new Date(docData.updatedAt).getTime() : 0;
+
+          setServices(prev => {
+            const localTime = (prev && prev[0]?._localUpdatedAt) || 0;
+            if (localTime > cloudTime) return prev;
+
+            const mergedServices = cloudServices.map(cs => {
+              const localMatch = prev.find(ls => ls.id === cs.id);
+              if (localMatch && localMatch.image?.includes('cloudinary.com') && !cs.image?.includes('cloudinary.com')) {
+                return { ...cs, image: localMatch.image };
+              }
+              return cs;
+            });
+
+            try {
+              localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(mergedServices));
+            } catch (e) {}
+            return mergedServices;
+          });
         }
       }, (err) => {
         if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Serviços:', err.message);
@@ -463,9 +511,20 @@ export function BarberProvider({ children }) {
       const unsubGallery = onSnapshot(doc(firestoreDb, 'barbershop', 'gallery'), (snap) => {
         if (!isMounted) return;
         if (snap.exists() && Array.isArray(snap.data()?.data)) {
-          const cloudGallery = snap.data().data;
-          setGalleryImages(cloudGallery);
-          localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(cloudGallery));
+          const docData = snap.data();
+          const cloudGallery = docData.data;
+          const cloudTime = docData.updatedAt ? new Date(docData.updatedAt).getTime() : 0;
+
+          setGalleryImages(prev => {
+            const localTime = prev?._localUpdatedAt || 0;
+            if (localTime > cloudTime) return prev;
+
+            const combined = [...new Set([...prev.filter(img => img.includes('cloudinary.com')), ...cloudGallery])];
+            try {
+              localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(combined));
+            } catch (e) {}
+            return combined;
+          });
         }
       }, (err) => {
         if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Galeria:', err.message);
@@ -480,9 +539,18 @@ export function BarberProvider({ children }) {
       const unsubSchedule = onSnapshot(doc(firestoreDb, 'barbershop', 'schedule'), (snap) => {
         if (!isMounted) return;
         if (snap.exists() && snap.data()?.data) {
-          const cloudSchedule = snap.data().data;
-          setScheduleConfig(prev => ({ ...prev, ...cloudSchedule }));
-          localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(cloudSchedule));
+          const docData = snap.data();
+          const cloudSchedule = docData.data;
+          const cloudTime = docData.updatedAt ? new Date(docData.updatedAt).getTime() : 0;
+
+          setScheduleConfig(prev => {
+            const localTime = prev?._localUpdatedAt || 0;
+            if (localTime > cloudTime) return prev;
+            try {
+              localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(cloudSchedule));
+            } catch (e) {}
+            return { ...prev, ...cloudSchedule };
+          });
         }
       }, (err) => {
         if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Horários:', err.message);
@@ -497,9 +565,18 @@ export function BarberProvider({ children }) {
       const unsubTheme = onSnapshot(doc(firestoreDb, 'barbershop', 'theme'), (snap) => {
         if (!isMounted) return;
         if (snap.exists() && snap.data()?.data) {
-          const cloudTheme = snap.data().data;
-          setTheme(cloudTheme);
-          localStorage.setItem(STORAGE_KEYS.THEME, JSON.stringify(cloudTheme));
+          const docData = snap.data();
+          const cloudTheme = docData.data;
+          const cloudTime = docData.updatedAt ? new Date(docData.updatedAt).getTime() : 0;
+
+          setTheme(prev => {
+            const localTime = prev?._localUpdatedAt || 0;
+            if (localTime > cloudTime) return prev;
+            try {
+              localStorage.setItem(STORAGE_KEYS.THEME, JSON.stringify(cloudTheme));
+            } catch (e) {}
+            return cloudTheme;
+          });
         }
       }, (err) => {
         if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Tema:', err.message);
@@ -514,9 +591,18 @@ export function BarberProvider({ children }) {
       const unsubBarbers = onSnapshot(doc(firestoreDb, 'barbershop', 'barbers'), (snap) => {
         if (!isMounted) return;
         if (snap.exists() && Array.isArray(snap.data()?.data) && snap.data().data.length > 0) {
-          const cloudBarbers = snap.data().data;
-          setBarbers(cloudBarbers);
-          localStorage.setItem(STORAGE_KEYS.BARBERS, JSON.stringify(cloudBarbers));
+          const docData = snap.data();
+          const cloudBarbers = docData.data;
+          const cloudTime = docData.updatedAt ? new Date(docData.updatedAt).getTime() : 0;
+
+          setBarbers(prev => {
+            const localTime = (prev && prev[0]?._localUpdatedAt) || 0;
+            if (localTime > cloudTime) return prev;
+            try {
+              localStorage.setItem(STORAGE_KEYS.BARBERS, JSON.stringify(cloudBarbers));
+            } catch (e) {}
+            return cloudBarbers;
+          });
         }
       }, (err) => {
         if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Barbeiros:', err.message);
@@ -720,8 +806,9 @@ export function BarberProvider({ children }) {
 
   // Ações de Serviços
   const addService = (newService) => {
+    const now = Date.now();
     const created = {
-      id: 'svc-' + Date.now(),
+      id: 'svc-' + now,
       name: newService.name,
       category: newService.category || 'cabelo',
       duration: newService.duration || '30 min',
@@ -730,17 +817,25 @@ export function BarberProvider({ children }) {
       image: newService.image || 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=600&q=80',
       popular: !!newService.popular,
       badge: newService.badge || '',
+      _localUpdatedAt: now,
     };
     setServices(prev => {
       const updated = [created, ...prev];
+      try {
+        localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('services', updated);
       return updated;
     });
   };
 
   const updateService = (id, updatedFields) => {
+    const now = Date.now();
     setServices(prev => {
-      const updated = prev.map(s => s.id === id ? { ...s, ...updatedFields } : s);
+      const updated = prev.map(s => s.id === id ? { ...s, ...updatedFields, _localUpdatedAt: now } : s);
+      try {
+        localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('services', updated);
       return updated;
     });
@@ -749,6 +844,9 @@ export function BarberProvider({ children }) {
   const deleteService = (id) => {
     setServices(prev => {
       const updated = prev.filter(s => s.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('services', updated);
       return updated;
     });
@@ -758,6 +856,9 @@ export function BarberProvider({ children }) {
   const toggleAmenity = (id) => {
     setAmenities(prev => {
       const updated = prev.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a);
+      try {
+        localStorage.setItem(STORAGE_KEYS.AMENITIES, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('amenities', updated);
       return updated;
     });
@@ -772,6 +873,9 @@ export function BarberProvider({ children }) {
     };
     setAmenities(prev => {
       const updated = [...prev, newAm];
+      try {
+        localStorage.setItem(STORAGE_KEYS.AMENITIES, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('amenities', updated);
       return updated;
     });
@@ -780,6 +884,9 @@ export function BarberProvider({ children }) {
   const deleteAmenity = (id) => {
     setAmenities(prev => {
       const updated = prev.filter(a => a.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.AMENITIES, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('amenities', updated);
       return updated;
     });
@@ -787,17 +894,22 @@ export function BarberProvider({ children }) {
 
   // Ações da Equipe de Barbeiros
   const addBarber = (newBarber) => {
+    const now = Date.now();
     const created = {
-      id: 'barber-' + Date.now(),
+      id: 'barber-' + now,
       name: newBarber.name?.trim() || 'Novo Barbeiro',
       role: newBarber.role?.trim() || 'Barbeiro Profissional',
       specialties: newBarber.specialties || ['Degradê', 'Corte Masculino'],
       icon: newBarber.icon || '✂️',
       phone: newBarber.phone?.trim() || '',
       active: true,
+      _localUpdatedAt: now,
     };
     setBarbers(prev => {
       const updated = [...prev, created];
+      try {
+        localStorage.setItem(STORAGE_KEYS.BARBERS, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('barbers', updated);
       return updated;
     });
@@ -805,8 +917,12 @@ export function BarberProvider({ children }) {
   };
 
   const updateBarber = (id, updatedFields) => {
+    const now = Date.now();
     setBarbers(prev => {
-      const updated = prev.map(b => b.id === id ? { ...b, ...updatedFields } : b);
+      const updated = prev.map(b => b.id === id ? { ...b, ...updatedFields, _localUpdatedAt: now } : b);
+      try {
+        localStorage.setItem(STORAGE_KEYS.BARBERS, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('barbers', updated);
       return updated;
     });
@@ -815,6 +931,9 @@ export function BarberProvider({ children }) {
   const deleteBarber = (id) => {
     setBarbers(prev => {
       const updated = prev.filter(b => b.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.BARBERS, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('barbers', updated);
       return updated;
     });
@@ -823,6 +942,9 @@ export function BarberProvider({ children }) {
   const toggleBarberActive = (id) => {
     setBarbers(prev => {
       const updated = prev.map(b => b.id === id ? { ...b, active: !b.active } : b);
+      try {
+        localStorage.setItem(STORAGE_KEYS.BARBERS, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('barbers', updated);
       return updated;
     });
@@ -832,7 +954,11 @@ export function BarberProvider({ children }) {
   const addGalleryImage = (url) => {
     if (!url) return;
     setGalleryImages(prev => {
-      const updated = [...prev, url];
+      const updated = [url, ...prev];
+      updated._localUpdatedAt = Date.now();
+      try {
+        localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('gallery', updated);
       return updated;
     });
@@ -841,6 +967,10 @@ export function BarberProvider({ children }) {
   const removeGalleryImage = (indexToRemove) => {
     setGalleryImages(prev => {
       const updated = prev.filter((_, idx) => idx !== indexToRemove);
+      updated._localUpdatedAt = Date.now();
+      try {
+        localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('gallery', updated);
       return updated;
     });
@@ -849,7 +979,10 @@ export function BarberProvider({ children }) {
   // Ações de Perfil & Especialidades
   const updateProfile = (fields) => {
     setProfile(prev => {
-      const updated = { ...prev, ...fields };
+      const updated = { ...prev, ...fields, _localUpdatedAt: Date.now() };
+      try {
+        localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(updated));
+      } catch (e) {}
       saveToFirestore('profile', updated);
       return updated;
     });

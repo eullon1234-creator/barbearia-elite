@@ -104,7 +104,9 @@ export default function ImageCropperModal({
     if (!imageSrc) return null;
     return new Promise((resolve, reject) => {
       const img = new Image();
-      img.crossOrigin = 'anonymous';
+      if (!imageSrc.startsWith('data:') && !imageSrc.startsWith('blob:')) {
+        img.crossOrigin = 'anonymous';
+      }
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const targetAspect = getNumericAspect(aspectRatio);
@@ -224,9 +226,23 @@ export default function ImageCropperModal({
   // Confirma e envia A IMAGEM INTEIRA ORIGINAL sem cortar
   const handleConfirmOriginal = async () => {
     try {
-      const res = await fetch(imageSrc);
-      const blob = await res.blob();
-      const fullFile = new File([blob], `full_${Date.now()}.jpg`, { type: blob.type || 'image/jpeg' });
+      let fullFile;
+      if (imageSrc.startsWith('data:')) {
+        const arr = imageSrc.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        fullFile = new File([blob], `full_${Date.now()}.jpg`, { type: mime });
+      } else {
+        const res = await fetch(imageSrc);
+        const blob = await res.blob();
+        fullFile = new File([blob], `full_${Date.now()}.jpg`, { type: blob.type || 'image/jpeg' });
+      }
       await onCropConfirm(fullFile);
     } catch (err) {
       alert('Erro ao processar a foto inteira: ' + err.message);

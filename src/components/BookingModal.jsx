@@ -448,7 +448,11 @@ export default function BookingModal({ isOpen, onClose, initialService }) {
                         }`}
                       >
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-base shrink-0">{barber.icon || '✂️'}</span>
+                          {barber.photo ? (
+                            <img src={barber.photo} alt={barber.name} className="w-8 h-8 rounded-full object-cover shrink-0 border border-gold-500/50 shadow-sm" />
+                          ) : (
+                            <span className="text-base shrink-0">{barber.icon || '✂️'}</span>
+                          )}
                           <div className="min-w-0">
                             <div className="text-xs font-bold text-white truncate">{barber.name}</div>
                             <span className="text-[10px] text-neutral-400 block truncate">{barber.role}</span>
