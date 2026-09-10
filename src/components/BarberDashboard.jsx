@@ -7,7 +7,7 @@ import {
   Building2, X, RotateCcw, ChevronRight, User, Eye, EyeOff,
   Upload, Camera, Loader2, Palette, Image as ImageIcon, Download,
   BarChart3, TrendingUp, MapPin, Navigation, LocateFixed, Search,
-  Heart, MessageCircle, QrCode, Megaphone, Lock, KeyRound
+  Heart, MessageCircle, QrCode, Megaphone, Lock, KeyRound, Gift
 } from 'lucide-react';
 import { useBarber, THEME_PRESETS } from '../context/BarberContext';
 import { uploadImageToCloudinary } from '../services/cloudinary';
@@ -632,13 +632,41 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
         </div>
       )}
 
+      {/* Banner de Teste Grátis Ativo (Contagem Regressiva ao Vivo Segundo a Segundo) */}
+      {license.isTrial && !licenseMetrics.isBlocked && (
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-900/40 via-purple-950/30 to-dark-900 border border-purple-500/50 text-purple-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-purple-950/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
+              <Gift className="w-4 h-4 animate-bounce" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <strong className="text-white font-extrabold text-xs">🎁 Período de Teste Grátis Ativo!</strong>
+                <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold">
+                  {license.trialDays || 7} Dias
+                </span>
+              </div>
+              <p className="text-[11px] text-neutral-300 mt-0.5">
+                Tempo restante: <strong className="text-purple-300 font-mono font-bold text-xs">{licenseMetrics.countdownDetailed}</strong> (após o término: R$ 35,00/mês).
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setIsSaaSPayModalOpen(true)}
+            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-[11px] shrink-0 transition-all shadow-md shadow-purple-600/30 cursor-pointer flex items-center gap-1.5"
+          >
+            <span>Ver Detalhes do Teste</span>
+          </button>
+        </div>
+      )}
+
       {/* Alerta de Vencimento da Assinatura Mensal */}
-      {(licenseMetrics.isWarning || licenseMetrics.isGracePeriod) && (
+      {!license.isTrial && (licenseMetrics.isWarning || licenseMetrics.isGracePeriod) && (
         <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-amber-500/10 to-dark-900 border border-amber-500/40 text-amber-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-lg animate-pulse">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
             <span>
-              <strong>Atenção:</strong> Sua assinatura mensal vence {licenseMetrics.daysRemaining <= 0 ? 'hoje' : `em ${licenseMetrics.daysRemaining} dias`}. Renove para manter o app online!
+              <strong>Atenção:</strong> Sua assinatura vence em <strong className="font-mono text-white">{licenseMetrics.countdownDetailed}</strong>. Renove para manter o app online!
             </span>
           </div>
           <button

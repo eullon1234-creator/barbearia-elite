@@ -525,11 +525,11 @@ export default function EullonMasterAdmin({ onExit }) {
               {/* Cards de cada barbearia */}
               <div className="space-y-3">
                 {displayedBarbershops.map((shop) => {
-                  const expiresDate = new Date(shop.expiresAt);
-                  const diffMs = expiresDate.getTime() - now.getTime();
-                  const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-                  const isBlocked = shop.status === 'blocked' || daysRemaining <= 0;
-                  const isWarning = daysRemaining > 0 && daysRemaining <= 5 && !isBlocked;
+                  const targetData = shop.id === 'barbearia-elite' ? license : shop;
+                  const shopMetrics = getLicenseMetrics(targetData);
+                  const isBlocked = shopMetrics.isBlocked;
+                  const isWarning = shopMetrics.isWarning;
+                  const expiresDate = new Date(targetData.expiresAt);
 
                   return (
                     <div
@@ -539,6 +539,8 @@ export default function EullonMasterAdmin({ onExit }) {
                           ? 'bg-rose-950/20 border-rose-500/40'
                           : isWarning
                           ? 'bg-yellow-950/20 border-yellow-500/40'
+                          : targetData.isTrial
+                          ? 'bg-purple-950/20 border-purple-500/40'
                           : 'bg-dark-900 border-dark-800 hover:border-dark-700'
                       }`}
                     >
@@ -547,19 +549,10 @@ export default function EullonMasterAdmin({ onExit }) {
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-base font-extrabold text-white">{shop.name}</h3>
                             <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${
-                                isBlocked
-                                  ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
-                                  : isWarning
-                                  ? `bg-yellow-500/20 text-yellow-300 border-yellow-500/30`
-                                  : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                              }`}
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border flex items-center gap-1.5 ${shopMetrics.badgeColor}`}
                             >
-                              {isBlocked
-                                ? '● Inadimplente / Bloqueada'
-                                : isWarning
-                                ? `⚠️ Vence em ${daysRemaining} ${daysRemaining === 1 ? 'dia' : 'dias'}`
-                                : `● Ativa (${daysRemaining} dias restantes)`}
+                              <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                              <span>{shopMetrics.label}</span>
                             </span>
 
                             {shop.id === 'barbearia-elite' && (

@@ -206,12 +206,12 @@ export function LicenseProvider({ children }) {
     }
   }, [trafficData]);
 
-  // Ticker reativo a cada 30 segundos para atualizar dias e horas em tempo real
+  // Ticker reativo a cada 1 segundo para atualizar dias, horas, minutos e segundos ao vivo
   const [currentTime, setCurrentTime] = useState(Date.now());
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(Date.now());
-    }, 30000);
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -294,16 +294,20 @@ export function LicenseProvider({ children }) {
     const expiresDate = new Date(targetLicense.expiresAt);
     const diffMs = expiresDate.getTime() - now.getTime();
     
-    // Contagem regressiva precisa de dias, horas e minutos
+    // Contagem regressiva precisa de dias, horas, minutos e segundos ao vivo
     const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
     const totalMinutes = Math.floor(totalSeconds / 60);
     const totalHours = Math.floor(totalMinutes / 60);
     const daysRemaining = Math.floor(totalHours / 24);
     const hoursRemaining = totalHours % 24;
     const minutesRemaining = totalMinutes % 60;
+    const secondsRemaining = totalSeconds % 60;
+
+    const pad = (n) => String(n).padStart(2, '0');
+    const liveTimeStr = `${daysRemaining}d ${pad(hoursRemaining)}h ${pad(minutesRemaining)}m ${pad(secondsRemaining)}s`;
 
     let status = 'active';
-    let label = `Ativa: ${daysRemaining}d ${hoursRemaining}h`;
+    let label = `Ativa: ${liveTimeStr}`;
     let badgeColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
 
     if (targetLicense.manualBlock) {
@@ -323,18 +327,16 @@ export function LicenseProvider({ children }) {
       }
     } else if (targetLicense.isTrial) {
       status = daysRemaining <= 2 ? 'warning' : 'active';
-      label = `🎁 Teste: ${daysRemaining}d ${hoursRemaining}h`;
+      label = `🎁 Teste: ${liveTimeStr}`;
       badgeColor = daysRemaining <= 2 
         ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' 
         : 'bg-purple-500/20 text-purple-300 border-purple-500/30';
     } else if (daysRemaining <= 5) {
       status = 'warning';
-      label = daysRemaining === 0 
-        ? `Vence em ${hoursRemaining}h ${minutesRemaining}m` 
-        : `Vence em ${daysRemaining}d ${hoursRemaining}h`;
+      label = `⚠️ Vence: ${liveTimeStr}`;
       badgeColor = 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
     } else {
-      label = `Ativa: ${daysRemaining}d ${hoursRemaining}h`;
+      label = `Ativa: ${liveTimeStr}`;
     }
 
     // Determina o valor a ser cobrado do barbeiro após o teste ou mensal
@@ -359,10 +361,11 @@ export function LicenseProvider({ children }) {
       daysRemaining,
       hoursRemaining,
       minutesRemaining,
+      secondsRemaining,
+      totalSecondsRemaining: totalSeconds,
       totalHoursRemaining: totalHours,
-      countdownDetailed: daysRemaining > 0 
-        ? `${daysRemaining} ${daysRemaining === 1 ? 'dia' : 'dias'} e ${hoursRemaining} ${hoursRemaining === 1 ? 'hora' : 'horas'}`
-        : `${hoursRemaining} ${hoursRemaining === 1 ? 'hora' : 'horas'} e ${minutesRemaining} min`,
+      liveTimeStr,
+      countdownDetailed: `${daysRemaining} dias, ${pad(hoursRemaining)}h ${pad(minutesRemaining)}m ${pad(secondsRemaining)}s`,
       expiresDateFormatted: expiresDate.toLocaleDateString('pt-BR'),
       currentPrice,
       regularPrice: targetLicense.regularPrice || DEVELOPER_CONFIG.regularPrice,
