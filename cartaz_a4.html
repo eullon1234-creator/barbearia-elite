@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display de Balcão e Cartaz A4 - Barbearia Andrade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #D4AF37;
+      --gold-light: #F9E79F;
+      --gold-dark: #997514;
+      --bg: #0A0A0A;
+      --card-bg: #141414;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #1a1a1a;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .no-print-bar {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-print {
+      background: linear-gradient(135deg, #D4AF37, #AA820A);
+      color: #000;
+      font-weight: 700;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-size: 15px;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-print:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+    }
+
+    /* Formato A4 */
+    .sheet {
+      width: 210mm;
+      height: 297mm;
+      background: radial-gradient(circle at 50% 20%, #1f1b11 0%, #0d0d0d 60%, #050505 100%);
+      border: 3px solid var(--gold);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 40px 35px;
+      overflow: hidden;
+    }
+
+    /* Moldura ornamental interna */
+    .inner-border {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      bottom: 15px;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+    .corner-ornament {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border: 2px solid var(--gold);
+    }
+    .top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+    .top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+    .bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+    .bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+    /* Cabeçalho */
+    .header {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .icon-scissors {
+      color: var(--gold);
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .brand-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      letter-spacing: 6px;
+      color: var(--gold);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .divider {
+      width: 120px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 15px auto;
+    }
+
+    /* Chamada de Ação Principal */
+    .cta-container {
+      text-align: center;
+    }
+
+    .cta-headline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+
+    .cta-subline {
+      font-size: 15px;
+      color: #CBD5E1;
+      font-weight: 500;
+    }
+
+    /* Container do QR Code */
+    .qr-box {
+      background: #FFFFFF;
+      padding: 18px;
+      border-radius: 20px;
+      box-shadow: 0 0 35px rgba(212, 175, 55, 0.4), 0 10px 30px rgba(0,0,0,0.9);
+      border: 4px solid var(--gold);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .qr-image {
+      width: 200mm;
+      max-width: 260px;
+      height: auto;
+      display: block;
+    }
+
+    .qr-badge {
+      margin-top: 10px;
+      background: #000;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      border: 1px solid var(--gold);
+    }
+
+    /* Passos / Benefícios */
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-top: 5px;
+    }
+
+    .step-item {
+      text-align: center;
+      max-width: 140px;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #000;
+      font-weight: 900;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .step-text {
+      font-size: 12px;
+      color: #E2E8F0;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    /* Rodapé Informativo */
+    .footer {
+      width: 100%;
+      border-top: 1px solid rgba(212, 175, 55, 0.25);
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #94A3B8;
+    }
+
+    .footer-col strong {
+      color: #FFFFFF;
+    }
+
+    .footer-link {
+      color: var(--gold);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    /* Regras de Impressão */
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .no-print-bar {
+        display: none !important;
+      }
+
+      .sheet {
+        box-shadow: none;
+        border-radius: 0;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 15mm 15mm;
+        page-break-after: always;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra de controle na tela -->
+  <div class="no-print-bar">
+    <button class="btn-print" onclick="window.print()">
+      🖨️ Imprimir Cartaz / Salvar em PDF
+    </button>
+  </div>
+
+  <!-- Folha A4 para o Balcão / Parede da Barbearia -->
+  <div class="sheet">
+    <div class="inner-border"></div>
+    <div class="corner-ornament top-left"></div>
+    <div class="corner-ornament top-right"></div>
+    <div class="corner-ornament bottom-left"></div>
+    <div class="corner-ornament bottom-right"></div>
+
+    <!-- Cabeçalho -->
+    <div class="header">
+      <div class="icon-scissors">💈 ✂️ 💈</div>
+      <h1 class="brand-title">BARBEARIA ELITE</h1>
+      <p class="brand-subtitle">Edivan & Valdivan • Cortes & Barba Especialista</p>
+      <div class="divider"></div>
+    </div>
+
+    <!-- Chamada para Ação -->
+    <div class="cta-container">
+      <h2 class="cta-headline">AGENDE SEU HORÁRIO ONLINE</h2>
+      <p class="cta-subline">Aponte a câmera do seu celular para o QR Code abaixo</p>
+    </div>
+
+    <!-- QR Code Real e Escaneável -->
+    <div class="qr-box">
+      <img src="qrcode.png" alt="QR Code Barbearia Elite" class="qr-image" />
+      <span class="qr-badge">Agendamento Online</span>
+    </div>
+
+    <!-- Instruções Rápidas -->
+    <div class="steps">
+      <div class="step-item">
+        <div class="step-number">1</div>
+        <div class="step-text">Abra a câmera do seu celular</div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">2</div>
+        <div class="step-text">Escolha seu barbeiro, serviço & horário</div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">3</div>
+        <div class="step-text">Pronto! Atendimento sem filas</div>
+      </div>
+    </div>
+
+    <!-- Rodapé com Informações de Contato -->
+    <div class="footer">
+      <div class="footer-col">
+        📍 <strong>Localização:</strong> Avenida Petrônio Portela
+      </div>
+      <div class="footer-col">
+        📲 <strong>WhatsApp / Pix:</strong> (86) 99472-7396
+      </div>
+      <div class="footer-col">
+        ⭐ <strong>Agendamento:</strong> <span class="footer-link">Online 24h</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
