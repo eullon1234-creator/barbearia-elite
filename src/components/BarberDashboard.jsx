@@ -2810,7 +2810,7 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
             await cropperModal.targetCallback(croppedFile);
           }
         }}
-        isUploading={isUploadingServiceImage || isUploadingProfileImage || isUploadingCoverImage || isUploadingLogoImage || isUploadingGalleryImage || isUploadingFeedImage}
+        isUploading={isUploadingServiceImage || isUploadingProfileImage || isUploadingCoverImage || isUploadingLogoImage || isUploadingGalleryImage}
         themeColor={theme.primary}
       />
 

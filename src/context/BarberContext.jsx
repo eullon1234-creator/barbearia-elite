@@ -410,7 +410,9 @@ export function BarberProvider({ children }) {
         updatedAt: new Date().toISOString()
       }, { merge: true });
     } catch (err) {
-      console.warn(`[Firestore] Erro ao salvar ${docId}:`, err.message);
+      if (err?.code !== 'resource-exhausted') {
+        console.warn(`[Firestore] Erro ao salvar ${docId}:`, err.message);
+      }
     }
   };
 
@@ -430,10 +432,10 @@ export function BarberProvider({ children }) {
           const cloudProfile = snap.data().data;
           setProfile(prev => ({ ...prev, ...cloudProfile }));
           localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(cloudProfile));
-        } else {
-          saveToFirestore('profile', profile);
         }
-      }, (err) => console.warn('[Firestore] Erro no perfil:', err.message));
+      }, (err) => {
+        if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Perfil:', err.message);
+      });
       unsubs.push(unsubProfile);
     } catch (e) {
       console.warn(e);
@@ -447,33 +449,16 @@ export function BarberProvider({ children }) {
           const cloudServices = snap.data().data;
           setServices(cloudServices);
           localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(cloudServices));
-        } else {
-          saveToFirestore('services', services);
         }
-      }, (err) => console.warn('[Firestore] Erro em serviços:', err.message));
+      }, (err) => {
+        if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Serviços:', err.message);
+      });
       unsubs.push(unsubServices);
     } catch (e) {
       console.warn(e);
     }
 
-    // 3. Feed de Fotos (Lookbook Estilo Instagram)
-    try {
-      const unsubFeed = onSnapshot(doc(firestoreDb, 'barbershop', 'feed'), (snap) => {
-        if (!isMounted) return;
-        if (snap.exists() && Array.isArray(snap.data()?.data)) {
-          const cloudFeed = snap.data().data;
-          setFeedPosts(cloudFeed);
-          localStorage.setItem(STORAGE_KEYS.FEED_POSTS, JSON.stringify(cloudFeed));
-        } else {
-          saveToFirestore('feed', feedPosts);
-        }
-      }, (err) => console.warn('[Firestore] Erro no feed:', err.message));
-      unsubs.push(unsubFeed);
-    } catch (e) {
-      console.warn(e);
-    }
-
-    // 4. Galeria de Fotos
+    // 3. Galeria de Fotos
     try {
       const unsubGallery = onSnapshot(doc(firestoreDb, 'barbershop', 'gallery'), (snap) => {
         if (!isMounted) return;
@@ -481,16 +466,16 @@ export function BarberProvider({ children }) {
           const cloudGallery = snap.data().data;
           setGalleryImages(cloudGallery);
           localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(cloudGallery));
-        } else {
-          saveToFirestore('gallery', galleryImages);
         }
-      }, (err) => console.warn('[Firestore] Erro na galeria:', err.message));
+      }, (err) => {
+        if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Galeria:', err.message);
+      });
       unsubs.push(unsubGallery);
     } catch (e) {
       console.warn(e);
     }
 
-    // 5. Horários & Pausas
+    // 4. Horários & Pausas
     try {
       const unsubSchedule = onSnapshot(doc(firestoreDb, 'barbershop', 'schedule'), (snap) => {
         if (!isMounted) return;
@@ -498,16 +483,16 @@ export function BarberProvider({ children }) {
           const cloudSchedule = snap.data().data;
           setScheduleConfig(prev => ({ ...prev, ...cloudSchedule }));
           localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(cloudSchedule));
-        } else {
-          saveToFirestore('schedule', scheduleConfig);
         }
-      }, (err) => console.warn('[Firestore] Erro nos horários:', err.message));
+      }, (err) => {
+        if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Horários:', err.message);
+      });
       unsubs.push(unsubSchedule);
     } catch (e) {
       console.warn(e);
     }
 
-    // 6. Tema de Cores
+    // 5. Tema de Cores
     try {
       const unsubTheme = onSnapshot(doc(firestoreDb, 'barbershop', 'theme'), (snap) => {
         if (!isMounted) return;
@@ -515,16 +500,16 @@ export function BarberProvider({ children }) {
           const cloudTheme = snap.data().data;
           setTheme(cloudTheme);
           localStorage.setItem(STORAGE_KEYS.THEME, JSON.stringify(cloudTheme));
-        } else {
-          saveToFirestore('theme', theme);
         }
-      }, (err) => console.warn('[Firestore] Erro no tema:', err.message));
+      }, (err) => {
+        if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Tema:', err.message);
+      });
       unsubs.push(unsubTheme);
     } catch (e) {
       console.warn(e);
     }
 
-    // 7. Equipe de Barbeiros (Edivan & Valdivan)
+    // 6. Equipe de Barbeiros (Edivan & Valdivan)
     try {
       const unsubBarbers = onSnapshot(doc(firestoreDb, 'barbershop', 'barbers'), (snap) => {
         if (!isMounted) return;
@@ -532,16 +517,16 @@ export function BarberProvider({ children }) {
           const cloudBarbers = snap.data().data;
           setBarbers(cloudBarbers);
           localStorage.setItem(STORAGE_KEYS.BARBERS, JSON.stringify(cloudBarbers));
-        } else {
-          saveToFirestore('barbers', barbers);
         }
-      }, (err) => console.warn('[Firestore] Erro nos barbeiros:', err.message));
+      }, (err) => {
+        if (err?.code !== 'resource-exhausted') console.warn('[Firestore] Barbeiros:', err.message);
+      });
       unsubs.push(unsubBarbers);
     } catch (e) {
       console.warn(e);
     }
 
-    // 8. Agendamentos em Tempo Real
+    // 7. Agendamentos em Tempo Real
     try {
       const colRef = collection(firestoreDb, 'appointments');
       const unsubApts = onSnapshot(colRef, (snapshot) => {
@@ -574,12 +559,11 @@ export function BarberProvider({ children }) {
           });
           setAppointments(list);
           localStorage.setItem(STORAGE_KEYS.APPOINTMENTS, JSON.stringify(list));
-        } else {
-          setAppointments([]);
-          localStorage.setItem(STORAGE_KEYS.APPOINTMENTS, JSON.stringify([]));
         }
       }, (err) => {
-        console.warn('[Firestore] Erro em agendamentos:', err.message);
+        if (err?.code !== 'resource-exhausted') {
+          console.warn('[Firestore] Agendamentos:', err.message);
+        }
       });
       unsubs.push(unsubApts);
     } catch (e) {
@@ -591,10 +575,6 @@ export function BarberProvider({ children }) {
       unsubs.forEach(u => typeof u === 'function' && u());
     };
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.FEED_POSTS, JSON.stringify(feedPosts));
-  }, [feedPosts]);
 
   // 9. Serviços Adicionais (Upsell)
   const [extras, setExtras] = useState(() => {

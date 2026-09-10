@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { db as firestoreDb } from '../services/firebase';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 
@@ -215,6 +215,9 @@ export function LicenseProvider({ children }) {
     return () => clearInterval(timer);
   }, []);
 
+  // Referência para evitar loop infinito entre onSnapshot e saveLicenseToFirestore
+  const isRemoteUpdateRef = useRef(false);
+
   // Salva alterações localmente e sincroniza com Firestore
   const saveLicenseToFirestore = async (targetLicense) => {
     if (!firestoreDb) return;
@@ -225,13 +228,20 @@ export function LicenseProvider({ children }) {
         updatedAt: new Date().toISOString(),
       }, { merge: true });
     } catch (err) {
-      console.warn('[Firestore] Erro ao salvar licença:', err.message);
+      if (err?.code !== 'resource-exhausted') {
+        console.warn('[Firestore] Erro ao salvar licença:', err.message);
+      }
     }
   };
 
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEYS.LICENSE, JSON.stringify(license));
+      if (isRemoteUpdateRef.current) {
+        // Atualização recebida do Firestore remoto: não salva de volta para evitar loop infinito
+        isRemoteUpdateRef.current = false;
+        return;
+      }
       saveLicenseToFirestore(license);
     } catch (e) {
       console.error(e);
@@ -247,6 +257,7 @@ export function LicenseProvider({ children }) {
         if (!isMounted) return;
         if (snap.exists()) {
           const cloudData = snap.data();
+          isRemoteUpdateRef.current = true;
           setLicense(prev => ({
             ...prev,
             ...cloudData,
@@ -254,7 +265,11 @@ export function LicenseProvider({ children }) {
             systemNotice: { ...(prev.systemNotice || {}), ...(cloudData.systemNotice || {}) },
           }));
         }
-      }, (err) => console.warn('[Firestore] Licença:', err.message));
+      }, (err) => {
+        if (err?.code !== 'resource-exhausted') {
+          console.warn('[Firestore] Licença:', err.message);
+        }
+      });
 
       return () => {
         isMounted = false;
