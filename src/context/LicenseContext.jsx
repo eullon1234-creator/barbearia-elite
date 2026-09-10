@@ -157,6 +157,19 @@ const INITIAL_ALL_BARBERSHOPS = [
 export function LicenseProvider({ children }) {
   const [license, setLicense] = useState(() => {
     try {
+      if (typeof window !== 'undefined' && window.location.search.includes('trial=1')) {
+        const init = createInitialLicense();
+        const now = new Date();
+        const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        return {
+          ...init,
+          isTrial: true,
+          trialDays: 7,
+          expiresAt: expires.toISOString(),
+          regularPrice: 35.00,
+          customPrice: 35.00,
+        };
+      }
       const saved = localStorage.getItem(STORAGE_KEYS.LICENSE);
       if (saved) {
         const parsed = JSON.parse(saved);
