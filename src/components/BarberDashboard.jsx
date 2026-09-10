@@ -38,7 +38,14 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
   const [isSaaSPayModalOpen, setIsSaaSPayModalOpen] = useState(false);
   const licenseMetrics = getLicenseMetrics();
 
-  const [activeSubTab, setActiveSubTab] = useState('dashboard'); // 'dashboard' | 'agenda' | 'servicos' | 'temas' | 'horarios' | 'perfil'
+  const [activeSubTab, setActiveSubTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search);
+      const tab = p.get('aba');
+      if (tab) return tab;
+    }
+    return 'dashboard';
+  }); // 'dashboard' | 'agenda' | 'servicos' | 'temas' | 'horarios' | 'perfil'
   const [copiedLink, setCopiedLink] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
 
