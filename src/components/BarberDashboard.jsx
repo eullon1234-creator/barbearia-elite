@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { 
   Calendar, Clock, CheckCircle2, Coffee, 
   Palmtree, DollarSign, Edit2, Trash2, Plus, 
-  Phone, Scissors, Share2, Check, ExternalLink, 
+  Phone, Scissors, Share2, Check, ExternalLink, Copy,
   ShieldCheck, Sparkles, AlertCircle, Settings, 
   Building2, X, RotateCcw, ChevronRight, User, Eye, EyeOff,
   Upload, Camera, Loader2, Palette, Image as ImageIcon, Download,
@@ -106,13 +106,58 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
     setTimeout(() => setNotificationMessage(''), 3000);
   };
 
-  const handleCopyClientLink = () => {
-    const clientUrl = window.location.origin + window.location.pathname;
-    navigator.clipboard.writeText(clientUrl).then(() => {
+  // Função universal de cópia com fallback para qualquer celular ou computador
+  const copyToClipboardRobust = async (text) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (err) {
+      // Falha no clipboard nativo, segue para o fallback abaixo
+    }
+
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '-9999px';
+      textArea.setAttribute('readonly', '');
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      if (success) return true;
+    } catch (err) {
+      // Fallback falhou
+    }
+    return false;
+  };
+
+  // URL 100% limpa do cliente (sem #barbeiro, sem ?barbeiro=1, sem PIN)
+  const getCleanClientUrl = () => {
+    if (typeof window === 'undefined') return 'https://eullon1234-creator.github.io/barbearia-elite/';
+    const host = window.location.hostname;
+    // Se estiver em desenvolvimento local
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return `${window.location.origin}/`;
+    }
+    // URL de produção no GitHub Pages
+    return 'https://eullon1234-creator.github.io/barbearia-elite/';
+  };
+
+  const handleCopyClientLink = async () => {
+    const clientUrl = getCleanClientUrl();
+    const ok = await copyToClipboardRobust(clientUrl);
+    if (ok) {
       setCopiedLink(true);
-      showToast('Link do cliente copiado!');
-      setTimeout(() => setCopiedLink(false), 2500);
-    });
+      showToast('Link do CLIENTE copiado: ' + clientUrl);
+      setTimeout(() => setCopiedLink(false), 3000);
+    } else {
+      prompt('Copie o link dos clientes abaixo:', clientUrl);
+    }
   };
 
   // Handlers de Upload com Pré-recorte e Ajuste Interativo
@@ -686,7 +731,7 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
       )}
 
       {/* Banner de Teste Grátis Ativo (Contagem Regressiva ao Vivo Segundo a Segundo) */}
-      {license.isTrial && !licenseMetrics.isBlocked && (
+      {(license.isTrial || licenseMetrics.isTrial) && !licenseMetrics.isBlocked && (
         <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-900/40 via-purple-950/30 to-dark-900 border border-purple-500/50 text-purple-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-purple-950/50">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
@@ -831,6 +876,44 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
               <Lock className="w-3.5 h-3.5" />
               <span>Trancar</span>
             </button>
+          </div>
+        </div>
+
+        {/* Card em Destaque: Link Oficial para Enviar aos Clientes */}
+        <div className="p-3 rounded-xl bg-dark-900 border border-dark-750 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-sm">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg theme-gradient-accent flex items-center justify-center text-dark-950 font-black shrink-0 shadow-sm">
+              <Share2 className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] uppercase font-black theme-text-accent block">
+                Link Oficial para os Clientes Agendarem:
+              </span>
+              <span className="font-mono text-xs text-white truncate block select-all font-bold">
+                {getCleanClientUrl()}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleCopyClientLink}
+              className="px-3 py-1.5 rounded-lg theme-gradient-accent text-dark-950 font-black text-xs flex items-center gap-1.5 shadow-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+              title="Copiar o link oficial para enviar no WhatsApp ou Instagram dos clientes"
+            >
+              {copiedLink ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedLink ? 'Copiado com Sucesso!' : 'Copiar Link do Cliente'}</span>
+            </button>
+            <a
+              href={getCleanClientUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2.5 py-1.5 rounded-lg bg-dark-800 hover:bg-dark-750 text-neutral-300 border border-dark-700 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors"
+              title="Abrir como cliente em nova aba para testar"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Ver como Cliente</span>
+            </a>
           </div>
         </div>
 

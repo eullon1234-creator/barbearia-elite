@@ -75,11 +75,10 @@ export const DEVELOPER_CONFIG = {
   regularPrice: 35.00,
 };
 
-// Data inicial: Licença ativa válida por 30 dias por padrão
+// Data inicial: Barbearia Elite com 7 Dias Grátis de Cortesia Liberados
 const createInitialLicense = () => {
   const now = new Date();
-  const expires = new Date();
-  expires.setDate(now.getDate() + 30); // 30 dias de trial / 1º mês
+  const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 dias de teste grátis
 
   return {
     id: 'barbearia-elite',
@@ -90,30 +89,32 @@ const createInitialLicense = () => {
     status: 'active', // 'active' | 'warning' | 'grace_period' | 'blocked'
     createdAt: now.toISOString(),
     expiresAt: expires.toISOString(),
+    isTrial: true,
+    trialDays: 7,
     isFirstMonth: true,
-    firstMonthPrice: DEVELOPER_CONFIG.firstMonthPrice,
-    regularPrice: DEVELOPER_CONFIG.regularPrice,
-    customPrice: 10.00,
+    firstMonthPrice: 35.00,
+    regularPrice: 35.00,
+    customPrice: 35.00,
     graceDays: 2, // 2 dias de tolerância
     manualBlock: false,
     promotion: {
-      active: false,
-      price: 10.00,
-      title: 'Super Promoção de Lançamento',
-      description: 'Aproveite a renovação com valor promocional por tempo limitado!',
+      active: true,
+      price: 35.00,
+      title: '7 Dias Grátis de Cortesia Ativos',
+      description: 'Aproveite o aplicativo 100% liberado por 7 dias grátis!',
     },
     systemNotice: {
       enabled: true,
-      text: 'Aviso de Assinatura: O 1º mês do seu aplicativo custa apenas R$ 10,00! A partir do próximo mês, a mensalidade regular será de R$ 35,00/mês.',
+      text: '🎁 Período de Cortesia: Seus 7 dias grátis estão ativos com contagem regressiva ao vivo! Após o término, a mensalidade de manutenção é de apenas R$ 35,00/mês.',
       type: 'promo', // 'info' | 'promo' | 'warning'
       updatedAt: now.toISOString(),
     },
     history: [
       {
-        id: 'pay-init',
+        id: 'pay-trial',
         date: now.toISOString(),
-        amount: 10.00,
-        type: 'Ativação Inicial (1º Mês)',
+        amount: 0.00,
+        type: 'Período de Teste Grátis (7 Dias)',
         status: 'Aprovado',
       }
     ]
@@ -157,36 +158,36 @@ const INITIAL_ALL_BARBERSHOPS = [
 export function LicenseProvider({ children }) {
   const [license, setLicense] = useState(() => {
     try {
-      if (typeof window !== 'undefined' && window.location.search.includes('trial=1')) {
-        const init = createInitialLicense();
-        const now = new Date();
-        const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-        return {
-          ...init,
-          isTrial: true,
-          trialDays: 7,
-          expiresAt: expires.toISOString(),
-          regularPrice: 35.00,
-          customPrice: 35.00,
-        };
-      }
+      const initial = createInitialLicense();
       const saved = localStorage.getItem(STORAGE_KEYS.LICENSE);
       if (saved) {
         const parsed = JSON.parse(saved);
-        return {
-          ...createInitialLicense(),
+        const merged = {
+          ...initial,
           ...parsed,
+          isTrial: true, // Sempre ativo para a Barbearia Elite
+          trialDays: parsed.trialDays || 7,
           promotion: {
-            ...createInitialLicense().promotion,
-            ...(parsed.promotion || {})
+            ...initial.promotion,
+            ...(parsed.promotion || {}),
+            active: true,
           },
           systemNotice: {
-            ...createInitialLicense().systemNotice,
-            ...(parsed.systemNotice || {})
+            ...initial.systemNotice,
+            ...(parsed.systemNotice || {}),
+            enabled: true,
           }
         };
+
+        const nowMs = Date.now();
+        const expiresMs = new Date(merged.expiresAt).getTime();
+        // Se a data de expiração no saved for inválida, no passado ou superior a 8 dias, ajusta para 7 dias a partir de agora
+        if (isNaN(expiresMs) || expiresMs < nowMs || expiresMs > nowMs + 8 * 24 * 60 * 60 * 1000) {
+          merged.expiresAt = new Date(nowMs + 7 * 24 * 60 * 60 * 1000).toISOString();
+        }
+        return merged;
       }
-      return createInitialLicense();
+      return initial;
     } catch (e) {
       return createInitialLicense();
     }
@@ -274,8 +275,10 @@ export function LicenseProvider({ children }) {
           setLicense(prev => ({
             ...prev,
             ...cloudData,
-            promotion: { ...(prev.promotion || {}), ...(cloudData.promotion || {}) },
-            systemNotice: { ...(prev.systemNotice || {}), ...(cloudData.systemNotice || {}) },
+            isTrial: true,
+            trialDays: cloudData.trialDays || 7,
+            promotion: { ...(prev.promotion || {}), ...(cloudData.promotion || {}), active: true },
+            systemNotice: { ...(prev.systemNotice || {}), ...(cloudData.systemNotice || {}), enabled: true },
           }));
         }
       }, (err) => {
