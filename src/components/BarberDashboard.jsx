@@ -851,15 +851,6 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
             </button>
 
             <button
-              onClick={handleCopyClientLink}
-              className="px-2.5 py-1.5 rounded-lg bg-dark-800 hover:bg-dark-750 theme-text-accent border border-dark-700 text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
-              title="Copiar link para enviar aos clientes"
-            >
-              {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
-              <span>{copiedLink ? 'Copiado!' : 'Link Cliente'}</span>
-            </button>
-
-            <button
               onClick={() => {
                 try {
                   sessionStorage.removeItem('elite_barber_auth');
@@ -879,39 +870,43 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
           </div>
         </div>
 
-        {/* Card em Destaque: Link Oficial para Enviar aos Clientes */}
-        <div className="p-3 rounded-xl bg-dark-900 border border-dark-750 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-sm">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg theme-gradient-accent flex items-center justify-center text-dark-950 font-black shrink-0 shadow-sm">
+        {/* Card em Destaque: Link Oficial para Enviar aos Clientes (Layout Blindado & Responsivo) */}
+        <div className="p-3.5 rounded-2xl bg-dark-900 border border-dark-750 shadow-md space-y-3">
+          {/* Topo do Card: Ícone, Título e URL Visível */}
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl theme-gradient-accent flex items-center justify-center text-dark-950 font-black shrink-0 shadow-sm mt-0.5">
               <Share2 className="w-4 h-4" />
             </div>
-            <div className="min-w-0">
-              <span className="text-[10px] uppercase font-black theme-text-accent block">
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] uppercase font-black theme-text-accent tracking-wider block mb-1">
                 Link Oficial para os Clientes Agendarem:
               </span>
-              <span className="font-mono text-xs text-white truncate block select-all font-bold">
+              <div className="px-3 py-1.5 rounded-xl bg-dark-950 border border-dark-800 font-mono text-xs text-neutral-200 truncate select-all">
                 {getCleanClientUrl()}
-              </span>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+
+          {/* Botões de Ação: Perfeitamente distribuídos em Grade Responsiva */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-dark-800/80">
             <button
               type="button"
               onClick={handleCopyClientLink}
-              className="px-3 py-1.5 rounded-lg theme-gradient-accent text-dark-950 font-black text-xs flex items-center gap-1.5 shadow-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+              className="w-full py-2.5 px-3 rounded-xl theme-gradient-accent text-dark-950 font-black text-xs flex items-center justify-center gap-2 shadow-sm hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"
               title="Copiar o link oficial para enviar no WhatsApp ou Instagram dos clientes"
             >
-              {copiedLink ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedLink ? 'Copiado com Sucesso!' : 'Copiar Link do Cliente'}</span>
+              {copiedLink ? <Check className="w-4 h-4 stroke-[3]" /> : <Copy className="w-4 h-4" />}
+              <span>{copiedLink ? 'Link Copiado com Sucesso!' : 'Copiar Link do Cliente'}</span>
             </button>
+
             <a
               href={getCleanClientUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2.5 py-1.5 rounded-lg bg-dark-800 hover:bg-dark-750 text-neutral-300 border border-dark-700 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors"
+              className="w-full py-2.5 px-3 rounded-xl bg-dark-800 hover:bg-dark-750 text-neutral-200 border border-dark-700 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors active:scale-[0.98]"
               title="Abrir como cliente em nova aba para testar"
             >
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-4 h-4" />
               <span>Ver como Cliente</span>
             </a>
           </div>
