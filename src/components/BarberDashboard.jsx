@@ -878,9 +878,14 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
               <Share2 className="w-4 h-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-[10px] uppercase font-black theme-text-accent tracking-wider block mb-1">
-                Link Oficial para os Clientes Agendarem:
-              </span>
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="text-[10px] uppercase font-black theme-text-accent tracking-wider block truncate">
+                  Link Oficial para os Clientes Agendarem:
+                </span>
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
+                  ONLINE
+                </span>
+              </div>
               <div className="px-3 py-1.5 rounded-xl bg-dark-950 border border-dark-800 font-mono text-xs text-neutral-200 truncate select-all">
                 {getCleanClientUrl()}
               </div>
