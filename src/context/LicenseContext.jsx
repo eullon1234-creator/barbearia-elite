@@ -166,8 +166,8 @@ export function LicenseProvider({ children }) {
 
         const nowMs = Date.now();
         const expiresMs = new Date(merged.expiresAt).getTime();
-        // Se a data de expiração no saved for inválida, no passado ou superior a 8 dias, ajusta para 7 dias a partir de agora
-        if (isNaN(expiresMs) || expiresMs < nowMs || expiresMs > nowMs + 8 * 24 * 60 * 60 * 1000) {
+        // Apenas se a data de expiração for completamente inválida (NaN), inicializa com 7 dias
+        if (isNaN(expiresMs)) {
           merged.expiresAt = new Date(nowMs + 7 * 24 * 60 * 60 * 1000).toISOString();
         }
         return merged;
