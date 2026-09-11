@@ -40,9 +40,9 @@ function calculateEndDateTime(dateStr, timeStr, durationMinutes = 35) {
  * Gera URL oficial do Google Agenda com lembrete
  */
 export function getGoogleCalendarUrl({
-  title = 'Corte na Barbearia Andrade',
-  description = 'Agendamento confirmado com Saymon Andrade.',
-  location = 'Povoado Cigana, Tuntum - MA',
+  title = 'Corte na Barbearia Elite',
+  description = 'Agendamento confirmado na Barbearia Elite.',
+  location = 'Av. Petrônio Portela, Amarante - PI',
   date = getDefaultDateStr(),
   time = '14:00',
   durationMinutes = 35
@@ -65,9 +65,9 @@ export function getGoogleCalendarUrl({
  * Faz o download do arquivo iCalendar (.ics) compatível com Apple Calendar, iPhone e Outlook
  */
 export function downloadIcsFile({
-  title = 'Corte na Barbearia Andrade',
-  description = 'Agendamento confirmado com Saymon Andrade.',
-  location = 'Povoado Cigana, Tuntum - MA',
+  title = 'Corte na Barbearia Elite',
+  description = 'Agendamento confirmado na Barbearia Elite.',
+  location = 'Av. Petrônio Portela, Amarante - PI',
   date = getDefaultDateStr(),
   time = '14:00',
   durationMinutes = 35
@@ -79,11 +79,11 @@ export function downloadIcsFile({
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Barbearia Andrade//Agendamentos//PT',
+    'PRODID:-//Barbearia Elite//Agendamentos//PT',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:apt-${Date.now()}@barbeariaandrade.com`,
+    `UID:apt-${Date.now()}@barbeariaelite.com`,
     `DTSTAMP:${nowStr}`,
     `DTSTART:${startStr}`,
     `DTEND:${endStr}`,
@@ -94,7 +94,7 @@ export function downloadIcsFile({
     'BEGIN:VALARM',
     'TRIGGER:-PT60M',
     'ACTION:DISPLAY',
-    'DESCRIPTION:Lembrete de agendamento na Barbearia Andrade',
+    'DESCRIPTION:Lembrete de agendamento na Barbearia Elite',
     'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR'

@@ -193,7 +193,7 @@ export default function ClientActiveBookingBanner({ onOpenBookingModal }) {
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-gold-400 uppercase tracking-wider">Agendamento Ativo</span>
-                  <h4 className="text-sm font-extrabold text-white">Barbearia Andrade</h4>
+                  <h4 className="text-sm font-extrabold text-white">{profile.name || 'Barbearia Elite'}</h4>
                 </div>
               </div>
               <button
@@ -275,8 +275,8 @@ export default function ClientActiveBookingBanner({ onOpenBookingModal }) {
                 <div className="flex items-center gap-2.5 min-w-0">
                   <MapPin className="w-5 h-5 text-gold-400 shrink-0" />
                   <div className="min-w-0">
-                    <h5 className="font-bold text-white truncate">{profile.address || 'Povoado Cigana, Tuntum - MA'}</h5>
-                    <p className="text-[10px] text-neutral-400">Barbearia Andrade</p>
+                    <h5 className="font-bold text-white truncate">{profile.address || 'Av. Petrônio Portela, Amarante - PI'}</h5>
+                    <p className="text-[10px] text-neutral-400">{profile.name || 'Barbearia Elite'}</p>
                   </div>
                 </div>
                 {profile.googleMapsLink && (
@@ -382,13 +382,13 @@ export default function ClientActiveBookingBanner({ onOpenBookingModal }) {
               </button>
 
               <a
-                href={getWhatsAppUrl(profile.whatsappNumber, `Olá Saymon! Tenho uma dúvida sobre meu agendamento de ${booking.service} no dia ${formattedDate} às ${booking.time}.`)}
+                href={getWhatsAppUrl(profile.whatsappNumber, `Olá! Tenho uma dúvida sobre meu agendamento de ${booking.service} no dia ${formattedDate} às ${booking.time}.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-dark-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow"
               >
                 <MessageCircle className="w-4 h-4 fill-dark-950" />
-                <span>Falar com Saymon</span>
+                <span>Falar no WhatsApp</span>
               </a>
             </div>
           </div>

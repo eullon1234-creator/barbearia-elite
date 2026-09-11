@@ -81,7 +81,7 @@ export default function ClientAuthModal({ isOpen, onClose, onSuccess }) {
             </div>
             <div>
               <span className="text-[10px] font-extrabold text-gold-400 uppercase tracking-wider block">
-                Barbearia Andrade
+                {profile?.name || 'Barbearia Elite'}
               </span>
               <h3 className="text-sm font-extrabold text-white">
                 Área Exclusiva do Cliente

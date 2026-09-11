@@ -1919,7 +1919,7 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
                     </label>
                     <input
                       type="text"
-                      placeholder="Ex: Povoado Cigana, Tuntum - MA"
+                      placeholder="Ex: Av. Petrônio Portela, Amarante - PI"
                       value={profile.cityState || ''}
                       onChange={(e) => updateProfile({ cityState: e.target.value })}
                       className="w-full p-2 rounded-xl bg-dark-850 border border-dark-700 text-white text-xs"
@@ -2866,7 +2866,7 @@ export default function BarberDashboard({ onBackToClientView, onLockDashboard })
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Carlos, Saymon, Thiago..."
+                  placeholder="Ex: Carlos, Edivan, Valdivan..."
                   value={barberForm.name}
                   onChange={(e) => setBarberForm({ ...barberForm, name: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-dark-850 border border-dark-700 text-white font-bold"

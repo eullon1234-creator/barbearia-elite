@@ -7,7 +7,7 @@ import {
 import { useBarber } from '../context/BarberContext';
 
 export default function ClientProfileModal({ isOpen, onClose, onOpenBooking }) {
-  const { currentClient, clientLogout, getClientStats, services } = useBarber();
+  const { currentClient, clientLogout, getClientStats, services, profile } = useBarber();
 
   if (!isOpen || !currentClient) return null;
 
@@ -132,7 +132,7 @@ export default function ClientProfileModal({ isOpen, onClose, onOpenBooking }) {
               <span className="text-xl font-black text-gold-400">
                 {stats.totalCuts}
               </span>
-              <span className="text-[9px] text-neutral-500 block mt-0.5">com Saymon Andrade</span>
+              <span className="text-[9px] text-neutral-500 block mt-0.5">na {profile?.name || 'Barbearia Elite'}</span>
             </div>
 
             <div className="p-3 rounded-xl bg-dark-850 border border-dark-750 text-center">

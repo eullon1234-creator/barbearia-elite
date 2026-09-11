@@ -7,8 +7,8 @@ export default function LocationSection() {
   const { profile, scheduleConfig } = useBarber();
   const [copied, setCopied] = useState(false);
 
-  const displayAddress = profile.address || 'Rua Principal, Povoado Cigana, Tuntum - MA';
-  const displayCityState = profile.cityState || (profile.address ? profile.address.split(',').slice(-2).join(', ').trim() : 'Povoado Cigana, Tuntum - MA');
+  const displayAddress = profile.address || 'Avenida Petrônio Portela, Amarante - PI';
+  const displayCityState = profile.cityState || (profile.address ? profile.address.split(',').slice(-2).join(', ').trim() : 'Amarante - PI');
   
   const finalMapsUrl = (profile.lat && profile.lng)
     ? `https://www.google.com/maps?q=${profile.lat},${profile.lng}`

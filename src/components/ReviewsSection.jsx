@@ -15,17 +15,17 @@ export default function ReviewsSection() {
     {
       id: 'rev-1',
       name: 'Marcos Vinícius',
-      city: 'Tuntum - MA',
-      service: 'Combo Andrade (Corte + Barba)',
+      city: 'Amarante - PI',
+      service: 'Combo Elite (Corte + Barba)',
       rating: 5,
       date: 'Há 2 dias',
-      text: 'O melhor degradê de toda a região sem sombra de dúvidas! O Saymon é pontual demais, a toalha quente na barba é diferenciada. Recomendo de olhos fechados!',
+      text: 'O melhor degradê de toda a região sem sombra de dúvidas! O atendimento na Barbearia Elite é pontual demais, a toalha quente na barba é diferenciada. Recomendo de olhos fechados!',
       verified: true
     },
     {
       id: 'rev-2',
       name: 'Lucas Ribeiro',
-      city: 'Povoado Cigana',
+      city: 'Amarante - PI',
       service: 'Degradê Navalhado',
       rating: 5,
       date: 'Há 4 dias',
@@ -35,7 +35,7 @@ export default function ReviewsSection() {
     {
       id: 'rev-3',
       name: 'Gabriel Souza',
-      city: 'Tuntum - MA',
+      city: 'Amarante - PI',
       service: 'Barboterapia & Toalha Quente',
       rating: 5,
       date: 'Há 1 semana',
@@ -45,11 +45,11 @@ export default function ReviewsSection() {
     {
       id: 'rev-4',
       name: 'Eduardo Costa',
-      city: 'Povoado Cigana',
+      city: 'Amarante - PI',
       service: 'Platinado / Nevou',
       rating: 5,
       date: 'Há 2 semanas',
-      text: 'Lancei o nevou com o Saymon e não ressecou nada o cabelo. Profissional que entende de química e visagismo. Nota 10!',
+      text: 'Lancei o nevou na Barbearia Elite e não ressecou nada o cabelo. Profissionais que entendem de química e visagismo. Nota 10!',
       verified: true
     }
   ];
@@ -277,7 +277,7 @@ export default function ReviewsSection() {
                   className="w-full p-2.5 rounded-xl bg-dark-850 border border-dark-700 text-white text-xs focus:outline-none"
                 >
                   <option value="Corte Masculino / Degradê">Corte Masculino / Degradê</option>
-                  <option value="Combo Andrade (Corte + Barba)">Combo Andrade (Corte + Barba)</option>
+                  <option value="Combo Elite (Corte + Barba)">Combo Elite (Corte + Barba)</option>
                   <option value="Barba Alinhada / Toalha Quente">Barba Alinhada / Toalha Quente</option>
                   <option value="Platinado / Nevou">Platinado / Nevou</option>
                   <option value="Sobrancelha / Acabamento">Sobrancelha / Acabamento</option>
@@ -290,7 +290,7 @@ export default function ReviewsSection() {
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Conte como foi seu corte, o atendimento do Saymon e o ambiente..."
+                  placeholder="Conte como foi seu corte, o atendimento da Barbearia Elite e o ambiente..."
                   value={newReviewForm.text}
                   onChange={(e) => setNewReviewForm(prev => ({ ...prev, text: e.target.value }))}
                   className="w-full p-2.5 rounded-xl bg-dark-850 border border-dark-700 text-white text-xs placeholder:text-neutral-500 focus:outline-none focus:border-amber-400"

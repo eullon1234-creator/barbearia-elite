@@ -430,7 +430,7 @@ export default function BarberAnalytics() {
           </table>
 
           <div class="footer">
-            <p>Relatório emitido pela Barbearia Andrade • Criado por Eullon</p>
+            <p>Relatório emitido pela ${profile?.name || 'Barbearia Elite'} • Criado por Eullon</p>
           </div>
         </body>
       </html>

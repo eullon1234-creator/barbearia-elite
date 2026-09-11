@@ -137,21 +137,6 @@ const INITIAL_ALL_BARBERSHOPS = [
     expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     url: 'https://eullon1234-creator.github.io/barbearia-elite/',
     notes: 'Cliente novo. 1º mês por R$ 10,00. Próximos meses R$ 35,00/mês.',
-  },
-  {
-    id: 'barbearia-andrade',
-    name: 'Barbearia Andrade',
-    owner: 'Saymon Andrade',
-    city: 'Povoado Cigana, Tuntum - MA',
-    phone: '5599991220211',
-    displayPhone: '(99) 99122-0211',
-    status: 'active',
-    isFirstMonth: false,
-    price: 49.90,
-    barberPin: '0192',
-    expiresAt: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000).toISOString(), // Vence em 18 dias
-    url: 'https://eullon1234-creator.github.io/barbearia-andrade/',
-    notes: 'Cliente fiel. Paga R$ 49,90/mês.',
   }
 ];
 

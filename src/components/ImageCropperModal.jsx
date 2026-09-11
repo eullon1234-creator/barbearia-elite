@@ -475,8 +475,8 @@ export default function ImageCropperModal({
                         className="w-full h-full rounded-full object-cover"
                       />
                     </div>
-                    <h4 className="text-sm font-extrabold text-white">Saymon Andrade</h4>
-                    <p className="text-[11px] theme-text-accent font-medium">Barbeiro Especialista</p>
+                    <h4 className="text-sm font-extrabold text-white">Edivan & Valdivan</h4>
+                    <p className="text-[11px] theme-text-accent font-medium">Barbeiros Profissionais</p>
                   </div>
                 )}
 
@@ -515,7 +515,7 @@ export default function ImageCropperModal({
                       className="w-full h-full object-cover opacity-75"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-dark-950 via-dark-950/40 to-transparent flex flex-col justify-end p-3 text-left">
-                      <span className="text-[9px] theme-text-accent font-black uppercase">Barbearia Andrade</span>
+                      <span className="text-[9px] theme-text-accent font-black uppercase">Barbearia Elite</span>
                       <h4 className="text-xs font-black text-white">Tradição & Estilo</h4>
                     </div>
                   </div>

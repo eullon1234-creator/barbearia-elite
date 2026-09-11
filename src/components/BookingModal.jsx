@@ -936,7 +936,7 @@ export default function BookingModal({ isOpen, onClose, initialService }) {
                   </div>
                   <div>
                     <h4 className="text-sm font-extrabold text-white">{profile.name}</h4>
-                    <p className="text-[10px] text-neutral-400">{profile.owner} • Povoado Cigana</p>
+                    <p className="text-[10px] text-neutral-400">{profile.owner} • {profile.cityState || 'Amarante - PI'}</p>
                   </div>
                 </div>
 
@@ -1137,9 +1137,9 @@ export default function BookingModal({ isOpen, onClose, initialService }) {
                 <div className="grid grid-cols-2 gap-2">
                   <a
                     href={getGoogleCalendarUrl({
-                      title: `Corte: ${selectedService ? selectedService.name : 'Barbearia Andrade'}`,
-                      description: `Agendamento com ${profile.owner} (${profile.name}). Pagamento: ${paymentMethod}${observation.trim() ? `\nObservação: ${observation.trim()}` : ''}`,
-                      location: profile.address || 'Povoado Cigana, Tuntum - MA',
+                      title: `Corte: ${selectedService ? selectedService.name : (profile.name || 'Barbearia Elite')}`,
+                      description: `Agendamento com ${profile.owner || 'Barbearia Elite'} (${profile.name || 'Barbearia Elite'}). Pagamento: ${paymentMethod}${observation.trim() ? `\nObservação: ${observation.trim()}` : ''}`,
+                      location: profile.address || 'Av. Petrônio Portela, Amarante - PI',
                       date: selectedDate,
                       time: selectedTime,
                       durationMinutes: totalDurationMinutes,
@@ -1155,9 +1155,9 @@ export default function BookingModal({ isOpen, onClose, initialService }) {
                   <button
                     type="button"
                     onClick={() => downloadIcsFile({
-                      title: `Corte: ${selectedService ? selectedService.name : 'Barbearia Andrade'}`,
-                      description: `Agendamento com ${profile.owner} (${profile.name}). Pagamento: ${paymentMethod}${observation.trim() ? `\nObservação: ${observation.trim()}` : ''}`,
-                      location: profile.address || 'Povoado Cigana, Tuntum - MA',
+                      title: `Corte: ${selectedService ? selectedService.name : (profile.name || 'Barbearia Elite')}`,
+                      description: `Agendamento com ${profile.owner || 'Barbearia Elite'} (${profile.name || 'Barbearia Elite'}). Pagamento: ${paymentMethod}${observation.trim() ? `\nObservação: ${observation.trim()}` : ''}`,
+                      location: profile.address || 'Av. Petrônio Portela, Amarante - PI',
                       date: selectedDate,
                       time: selectedTime,
                       durationMinutes: totalDurationMinutes,

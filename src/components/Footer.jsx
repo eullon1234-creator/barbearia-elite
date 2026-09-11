@@ -17,7 +17,7 @@ export default function Footer({ onOpenBooking }) {
     }
   };
 
-  const nameParts = (profile.name || 'Barbearia Andrade').split(' ');
+  const nameParts = (profile.name || 'Barbearia Elite').split(' ');
   const firstName = nameParts[0] || 'BARBEARIA';
   const restName = nameParts.slice(1).join(' ') || '';
 
