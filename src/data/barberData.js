@@ -112,7 +112,7 @@ export const BARBERSHOP_DATA = {
       duration: '15 min',
       price: 10.00,
       description: 'Alinhamento na navalha ou pinça para harmonizar o olhar e dar acabamento limpo ao visual.',
-      image: 'https://images.unsplash.com/photo-1517832606589-7629c6ae9e44?auto=format&fit=crop&w=600&q=80',
+      image: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=600&q=80',
       popular: false,
     },
     {
